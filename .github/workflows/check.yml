@@ -1,0 +1,30 @@
+# Runs automatically on GitHub every time code is pushed.
+# See the "Actions" tab of the repository for results.
+name: Check code
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v5
+
+      - name: Check JavaScript files for syntax errors
+        run: |
+          for f in js/*.js; do
+            echo "Checking $f"
+            node --check "$f"
+          done
+
+      - name: Make sure no secret Supabase key was committed
+        run: |
+          if grep -rEn "sb_secret_[A-Za-z0-9_-]{10,}" --include="*.js" --include="*.html" .; then
+            echo "A Supabase SECRET key was found. Remove it and use the publishable key instead."
+            exit 1
+          fi
+          echo "No secret keys found."
