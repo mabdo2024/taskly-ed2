@@ -1,0 +1,11 @@
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependencies and local tooling (not used by the app, but ignored just in case)
+node_modules/
+
+# Netlify local folder
+.netlify/
