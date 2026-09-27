@@ -5,7 +5,7 @@ Taskly is a small web app for keeping track of to-dos. You create an account, ad
 Built for **Engineering Design 2** (AI Hootcamp assignment).
 
 - **Live app:** https://taskly-mohammedabdo.netlify.app/
-- **Demo video:** https://youtu.be/YOUR-VIDEO-ID ← _replace after uploading (unlisted)_
+- **Demo video:** https://youtu.be/SPeTHo0XIjQ
 
 ![Screenshot of Taskly showing the add-task form and a list of tasks](docs/screenshot.png)
 
