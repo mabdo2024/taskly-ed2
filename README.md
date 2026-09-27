@@ -4,7 +4,7 @@ Taskly is a small web app for keeping track of to-dos. You create an account, ad
 
 Built for **Engineering Design 2** (AI Hootcamp assignment).
 
-- **Live app:** https://YOUR-SITE-NAME.netlify.app ← _replace after deploying_
+- **Live app:** https://taskly-mohammedabdo.netlify.app/
 - **Demo video:** https://youtu.be/YOUR-VIDEO-ID ← _replace after uploading (unlisted)_
 
 ![Screenshot of Taskly showing the add-task form and a list of tasks](docs/screenshot.png)
@@ -146,4 +146,4 @@ Finally, put the live URL at the top of this README.
 
 ## Author
 
-**YOUR NAME** · Engineering Design 2
+**Mohammed Abdo** · Engineering Design 2
