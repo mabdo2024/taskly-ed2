@@ -14,5 +14,5 @@
 // key here.
 // =============================================================
 
-export const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-export const SUPABASE_KEY = 'YOUR_SUPABASE_PUBLISHABLE_KEY';
+export const SUPABASE_URL = 'https://lsslvjtqwtgqjdmupbvv.supabase.co';
+export const SUPABASE_KEY = 'sb_publishable_EJ6H3BPEvYKLLioU_sJGQQ_3271RIzI';
