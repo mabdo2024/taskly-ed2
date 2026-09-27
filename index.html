@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Taskly · Simple Task Manager</title>
+  <meta name="description" content="Taskly is a simple task manager with user accounts, built with HTML, CSS, JavaScript, and Supabase.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f6fdf'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M6 12.5l4 4L18 8.5" /></svg>
+        </span>
+        Taskly
+      </div>
+      <div class="user-area" id="user-area" hidden>
+        <span class="user-email" id="user-email"></span>
+        <button type="button" class="btn btn-ghost" id="logout-btn">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Shown while we check whether someone is already logged in -->
+    <p class="page-loading" id="page-loading">Loading…</p>
+
+    <!-- Shown if js/config.js still has placeholder values -->
+    <section class="card notice" id="setup-view" hidden>
+      <h1>Almost there: connect Supabase</h1>
+      <p>Open <code>js/config.js</code> and paste in your Supabase <strong>Project URL</strong> and <strong>publishable (anon) key</strong>, then reload this page. See the README for step-by-step setup.</p>
+    </section>
+
+    <!-- ============ Logged OUT: register / log in ============ -->
+    <section class="auth-wrap" id="auth-view" hidden>
+      <div class="auth-intro">
+        <h1>Stay on top of what matters.</h1>
+        <p>Taskly keeps your to-dos in one place. Add tasks with due dates and priorities, check them off, and pick up where you left off on any device.</p>
+      </div>
+
+      <div class="card auth-card">
+        <div class="tabs" role="tablist" aria-label="Log in or sign up">
+          <button type="button" role="tab" class="tab" id="tab-login" data-mode="login" aria-selected="true">Log in</button>
+          <button type="button" role="tab" class="tab" id="tab-signup" data-mode="signup" aria-selected="false">Sign up</button>
+        </div>
+
+        <form id="auth-form" novalidate>
+          <div class="field">
+            <label for="auth-email">Email</label>
+            <input type="email" id="auth-email" name="email" autocomplete="email" required placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label for="auth-password">Password</label>
+            <input type="password" id="auth-password" name="password" autocomplete="current-password" required minlength="6" placeholder="At least 6 characters">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" id="auth-submit">Log in</button>
+        </form>
+        <p class="form-message" id="auth-message" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- ============ Logged IN: the task manager ============ -->
+    <section id="app-view" hidden>
+      <form class="card task-form" id="task-form">
+        <h2 class="card-title">Add a task</h2>
+        <div class="field">
+          <label for="task-title">Title</label>
+          <input type="text" id="task-title" maxlength="200" required placeholder="e.g. Finish ED2 demo video">
+        </div>
+        <div class="field">
+          <label for="task-description">Notes <span class="optional">(optional)</span></label>
+          <textarea id="task-description" rows="2" maxlength="2000" placeholder="Any details you want to remember"></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="task-due">Due date <span class="optional">(optional)</span></label>
+            <input type="date" id="task-due">
+          </div>
+          <div class="field">
+            <label for="task-priority">Priority</label>
+            <select id="task-priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary add-btn" id="task-submit">Add task</button>
+        </div>
+      </form>
+
+      <div class="list-header">
+        <h2>Your tasks</h2>
+        <div class="filters" role="group" aria-label="Filter tasks">
+          <button type="button" class="filter is-active" data-filter="all" aria-pressed="true">All <span class="count" id="count-all">0</span></button>
+          <button type="button" class="filter" data-filter="active" aria-pressed="false">Active <span class="count" id="count-active">0</span></button>
+          <button type="button" class="filter" data-filter="completed" aria-pressed="false">Completed <span class="count" id="count-completed">0</span></button>
+        </div>
+      </div>
+
+      <p class="list-status" id="list-status" role="status" aria-live="polite"></p>
+      <ul class="task-list" id="task-list"></ul>
+    </section>
+  </main>
+
+  <!-- Edit task pop-up -->
+  <dialog class="dialog" id="edit-dialog" aria-labelledby="edit-heading">
+    <form method="dialog" id="edit-form">
+      <h2 id="edit-heading">Edit task</h2>
+      <div class="field">
+        <label for="edit-title">Title</label>
+        <input type="text" id="edit-title" maxlength="200" required>
+      </div>
+      <div class="field">
+        <label for="edit-description">Notes</label>
+        <textarea id="edit-description" rows="3" maxlength="2000"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="edit-due">Due date</label>
+          <input type="date" id="edit-due">
+        </div>
+        <div class="field">
+          <label for="edit-priority">Priority</label>
+          <select id="edit-priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="edit-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="edit-save">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Small pop-up messages ("Task added", errors, ...) -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Blueprint for one task in the list (filled in by js/app.js) -->
+  <template id="task-template">
+    <li class="task">
+      <label class="check">
+        <input type="checkbox" class="task-toggle">
+        <span class="check-box" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M6 12.5l4 4L18 8.5" /></svg>
+        </span>
+        <span class="visually-hidden task-toggle-label"></span>
+      </label>
+      <div class="task-body">
+        <p class="task-title"></p>
+        <p class="task-description"></p>
+        <div class="task-meta">
+          <span class="badge priority"></span>
+          <span class="badge due"></span>
+        </div>
+      </div>
+      <div class="task-actions">
+        <button type="button" class="btn btn-ghost btn-small task-edit">Edit</button>
+        <button type="button" class="btn btn-danger-ghost btn-small task-delete">Delete</button>
+      </div>
+    </li>
+  </template>
+</body>
+</html>
