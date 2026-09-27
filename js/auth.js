@@ -11,6 +11,11 @@ import { supabase } from './supabaseClient.js';
 export async function signUp(email, password) {
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
+  // When email confirmation is on, Supabase does not say "already
+  // registered" (for privacy); it returns a user with no identities.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    throw new Error('User already registered');
+  }
   return { user: data.user, needsConfirmation: !data.session };
 }
 
